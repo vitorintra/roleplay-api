@@ -10,12 +10,12 @@ test.group("Password", (group) => {
   test("it should send an email with forgot password instructions", async (assert) => {
     const { email, username } = await UserFactory.create();
 
-    // Mail.trap((message) => {
-    //   assert.deepEqual(message.to, [{ address: email }]);
-    //   assert.deepEqual(message.from, { address: "no-reply@roleplay.com" });
-    //   assert.equal(message.subject, "Roleplay: Recuperação de Senha");
-    //   assert.include(message.html!, username);
-    // });
+    Mail.trap((message) => {
+      assert.deepEqual(message.to, [{ address: email }]);
+      assert.deepEqual(message.from, { address: "no-reply@roleplay.com" });
+      assert.equal(message.subject, "Roleplay: Recuperação de Senha");
+      assert.include(message.html!, username);
+    });
 
     await supertest(baseUrl)
       .post("/forgot-password")
@@ -25,7 +25,7 @@ test.group("Password", (group) => {
       })
       .expect(204);
 
-    // Mail.restore();
+    Mail.restore();
   });
 
   group.beforeEach(async () => {
