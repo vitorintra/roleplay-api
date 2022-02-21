@@ -1,4 +1,5 @@
 import Mail from "@ioc:Adonis/Addons/Mail";
+import Hash from "@ioc:Adonis/Core/Hash";
 import Database from "@ioc:Adonis/Lucid/Database";
 import { UserFactory } from "Database/factories";
 import test from "japa";
@@ -28,23 +29,41 @@ test.group("Password", (group) => {
     Mail.restore();
   });
 
-  test
-    .only("it should create a reset password token", async (assert) => {
-      const user = await UserFactory.create();
+  test("it should create a reset password token", async (assert) => {
+    const user = await UserFactory.create();
 
-      await supertest(baseUrl)
-        .post("/forgot-password")
-        .send({
-          email: user.email,
-          resetPasswordUrl: "url",
-        })
-        .expect(204);
+    await supertest(baseUrl)
+      .post("/forgot-password")
+      .send({
+        email: user.email,
+        resetPasswordUrl: "url",
+      })
+      .expect(204);
 
-      const tokens = await user.related("tokens").query();
+    const tokens = await user.related("tokens").query();
 
-      assert.isNotEmpty(tokens);
-    })
-    .timeout(0);
+    assert.isNotEmpty(tokens);
+  }).timeout(0);
+
+  test("it should return 422 when required data is not provided or data is invalid", async (assert) => {
+    const { body } = await supertest(baseUrl).post("/forgot-password").send({}).expect(422);
+    assert.equal(body.code, "BAD_REQUEST");
+    assert.equal(body.status, 422);
+  });
+
+  test.only("it should be able to reset password", async (assert) => {
+    const user = await UserFactory.create();
+    const { token } = await user.related("tokens").create({ token: "token " });
+
+    await supertest(baseUrl)
+      .post("/reset-password")
+      .send({ token, password: "123456" })
+      .expect(204);
+
+    await user.refresh();
+    const checkPassword = await Hash.verify(user.password, "123456");
+    assert.isTrue(checkPassword);
+  });
 
   group.beforeEach(async () => {
     await Database.beginGlobalTransaction();
