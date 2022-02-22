@@ -7,6 +7,6 @@ export default class SessionsController {
       expiresIn: "2hours",
     });
 
-    return response.created({ user: auth.user });
+    return response.created({ user: auth.user, token });
   }
 }
