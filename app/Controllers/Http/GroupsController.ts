@@ -1,9 +1,11 @@
 import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import Group from "App/Models/Group";
+import CreateGroup from "App/Validators/CreateGroupValidator";
 
 export default class GroupsController {
   public async store({ request, response }: HttpContextContract) {
-    const group = await Group.create(request.all());
+    const groupPayload = await request.validate(CreateGroup);
+    const group = await Group.create(groupPayload);
     return response.created({ group });
   }
 }

@@ -16,10 +16,10 @@ export default class Group extends BaseModel {
   public chronic: string;
 
   @column()
-  public schedule: number;
+  public schedule: string;
 
   @column()
-  public location: number;
+  public location: string;
 
   @column()
   public master: number;

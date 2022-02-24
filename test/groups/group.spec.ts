@@ -6,7 +6,7 @@ import supertest from "supertest";
 const baseUrl = `http://${process.env.HOST}:${process.env.PORT}`;
 
 test.group("Group", (group) => {
-  test.only("it should create a group", async (assert) => {
+  test("it should create a group", async (assert) => {
     const { id } = await UserFactory.create();
 
     const payload = {
@@ -33,6 +33,15 @@ test.group("Group", (group) => {
     assert.equal(location, payload.location);
     assert.equal(chronic, payload.chronic);
     assert.equal(master, payload.master);
+  });
+
+  test.only("it should return 422 when data is not provided", async (assert) => {
+    const {
+      body: { status, code },
+    } = await supertest(baseUrl).post("/groups").send({}).expect(422);
+
+    assert.equal(code, "BAD_REQUEST");
+    assert.equal(status, 422);
   });
 
   group.beforeEach(async () => {
