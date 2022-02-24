@@ -3,8 +3,11 @@ import { UserFactory } from "Database/factories";
 import test from "japa";
 import Hash from "@ioc:Adonis/Core/Hash";
 import supertest from "supertest";
+import User from "App/Models/User";
 
 const baseUrl = `http://${process.env.HOST}:${process.env.PORT}`;
+let authToken = "";
+let user = {} as User;
 
 test.group("User", (group) => {
   test("it should create an user", async (assert) => {
@@ -91,18 +94,15 @@ test.group("User", (group) => {
     assert.equal(body.status, 422);
   });
 
-  group.beforeEach(async () => {
-    await Database.beginGlobalTransaction();
-  });
-
   test("it should update an user", async (assert) => {
-    const { id, password } = await UserFactory.create();
+    const { password, id } = user;
 
     const email = "test@test.com";
     const avatar = "http://github.com/vitorim.png";
 
     const { body } = await supertest(baseUrl)
       .put(`/users/${id}`)
+      .set("Authorization", `Bearer ${authToken}`)
       .send({
         email,
         avatar,
@@ -117,12 +117,11 @@ test.group("User", (group) => {
   });
 
   test("it should update the password of the user", async (assert) => {
-    const user = await UserFactory.create();
-
     const password = "test";
 
     const { body } = await supertest(baseUrl)
       .put(`/users/${user.id}`)
+      .set("Authorization", `Bearer ${authToken}`)
       .send({
         email: user.email,
         avatar: user.avatar,
@@ -140,7 +139,11 @@ test.group("User", (group) => {
   test("it should return 422 when required data is not provided", async (assert) => {
     const { id } = await UserFactory.create();
 
-    const { body } = await supertest(baseUrl).put(`/users/${id}`).send({}).expect(422);
+    const { body } = await supertest(baseUrl)
+      .put(`/users/${id}`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({})
+      .expect(422);
     assert.equal(body.code, "BAD_REQUEST");
     assert.equal(body.status, 422);
   });
@@ -152,6 +155,7 @@ test.group("User", (group) => {
       body: { code, status },
     } = await supertest(baseUrl)
       .put(`/users/${id}`)
+      .set("Authorization", `Bearer ${authToken}`)
       .send({
         password,
         email: "test",
@@ -170,6 +174,7 @@ test.group("User", (group) => {
       body: { code, status },
     } = await supertest(baseUrl)
       .put(`/users/${id}`)
+      .set("Authorization", `Bearer ${authToken}`)
       .send({
         email,
         avatar,
@@ -188,6 +193,7 @@ test.group("User", (group) => {
       body: { code, status },
     } = await supertest(baseUrl)
       .put(`/users/${id}`)
+      .set("Authorization", `Bearer ${authToken}`)
       .send({
         email,
         password,
@@ -197,6 +203,26 @@ test.group("User", (group) => {
 
     assert.equal(code, "BAD_REQUEST");
     assert.equal(status, 422);
+  });
+
+  group.before(async () => {
+    const plainPassword = "test";
+    const newUser = await UserFactory.merge({ password: plainPassword }).create();
+    const {
+      body: {
+        token: { token },
+      },
+    } = await supertest(baseUrl)
+      .post("/sessions")
+      .send({ email: newUser.email, password: plainPassword })
+      .expect(201);
+
+    authToken = token;
+    user = newUser;
+  });
+
+  group.beforeEach(async () => {
+    await Database.beginGlobalTransaction();
   });
 
   group.afterEach(async () => {
