@@ -221,6 +221,10 @@ test.group("User", (group) => {
     user = newUser;
   });
 
+  group.after(async () => {
+    await supertest(baseUrl).delete("/sessions").set("Authorization", `Bearer ${authToken}`);
+  });
+
   group.beforeEach(async () => {
     await Database.beginGlobalTransaction();
   });
