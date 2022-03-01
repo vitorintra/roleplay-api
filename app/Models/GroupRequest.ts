@@ -9,11 +9,14 @@ export default class GroupRequest extends BaseModel {
   @column({ isPrimary: true })
   public id: number;
 
-  @column({ columnName: "user_id" })
+  @column({ columnName: "user_id", serializeAs: "userId" })
   public userId: number;
 
-  @column()
+  @column({ serializeAs: "groupId" })
   public groupId: number;
+
+  @column()
+  public status: "PENDING" | "ACCEPTED";
 
   @belongsTo(() => User, {
     foreignKey: "userId",
@@ -23,7 +26,7 @@ export default class GroupRequest extends BaseModel {
   @belongsTo(() => Group, {
     foreignKey: "groupId",
   })
-  public static group: BelongsTo<typeof Group>;
+  public group: BelongsTo<typeof Group>;
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime;

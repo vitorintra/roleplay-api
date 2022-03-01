@@ -8,7 +8,7 @@ export default class GroupRequests extends BaseSchema {
       table.increments("id");
       table.integer("user_id").unsigned().references("id").inTable("users").notNullable();
       table.integer("group_id").unsigned().references("id").inTable("groups").notNullable();
-      table.enum("status", ["PENDING", "ACCEPTED"]).notNullable();
+      table.enum("status", ["PENDING", "ACCEPTED"]).defaultTo("PENDING").notNullable();
       table.timestamps(true);
     });
   }
