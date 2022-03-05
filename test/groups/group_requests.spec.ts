@@ -3,6 +3,7 @@ import Database from "@ioc:Adonis/Lucid/Database";
 import test from "japa";
 import supertest from "supertest";
 import User from "App/Models/User";
+import GroupRequest from "App/Models/GroupRequest";
 
 const baseUrl = `http://${process.env.HOST}:${process.env.PORT}`;
 
@@ -19,8 +20,6 @@ test.group("Group Requests", (group) => {
       .set("Authorization", `Bearer ${authToken}`)
       .send({})
       .expect(201);
-
-    console.log(body);
 
     assert.exists(body.groupRequest, "Group undefined");
     assert.equal(body.groupRequest.userId, user.id);
@@ -89,6 +88,7 @@ test.group("Group Requests", (group) => {
       body: { groupRequests },
     } = await supertest(baseUrl)
       .get(`/groups/${group.id}/requests?master=${master.id}`)
+      .set("Authorization", `Bearer ${authToken}`)
       .expect(200);
 
     assert.exists(groupRequests, "groupRequests undefined");
@@ -113,20 +113,121 @@ test.group("Group Requests", (group) => {
 
     const {
       body: { groupRequests },
-    } = await supertest(baseUrl).get(`/groups/${group.id}/requests?master=${user.id}`).expect(200);
+    } = await supertest(baseUrl)
+      .get(`/groups/${group.id}/requests?master=${user.id}`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .expect(200);
 
     assert.exists(groupRequests, "groupRequests undefined");
     assert.equal(groupRequests.length, 0);
   });
 
-  test.only("it should return 422 when master is not provided", async (assert) => {
+  test("it should return 422 when master is not provided", async (assert) => {
     const master = await UserFactory.create();
     const group = await GroupFactory.merge({ master: master.id }).create();
 
-    const { body } = await supertest(baseUrl).get(`/groups/${group.id}/requests`).expect(422);
+    const { body } = await supertest(baseUrl)
+      .get(`/groups/${group.id}/requests`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .expect(422);
 
     assert.equal(body.code, "BAD_REQUEST");
     assert.equal(body.status, 422);
+  });
+
+  test("it should accept a group request", async (assert) => {
+    const group = await GroupFactory.merge({ master: user.id }).create();
+
+    const { body } = await supertest(baseUrl)
+      .post(`/groups/${group.id}/requests`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({});
+
+    const response = await supertest(baseUrl)
+      .post(`/groups/${group.id}/requests/${body.groupRequest.id}/accept`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .expect(200);
+
+    assert.exists(response.body.groupRequest, "GroupRequest undefined");
+    assert.equal(response.body.groupRequest.userId, user.id);
+    assert.equal(response.body.groupRequest.groupId, group.id);
+    assert.equal(response.body.groupRequest.status, "ACCEPTED");
+
+    await group.load("players");
+    assert.isNotEmpty(group.players);
+    assert.equal(group.players.length, 1);
+    assert.equal(group.players[0].id, user.id);
+  });
+
+  test("it should return 404 when providing an unexisting group request", async (assert) => {
+    const master = await UserFactory.create();
+    const group = await GroupFactory.merge({ master: master.id }).create();
+
+    await supertest(baseUrl)
+      .post(`/groups/${group.id}/requests`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({});
+
+    const response = await supertest(baseUrl)
+      .post(`/groups/${group.id}/requests/123/accept`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .expect(404);
+
+    assert.equal(response.body.code, "BAD_REQUEST");
+    assert.equal(response.body.status, 404);
+  });
+
+  test("it should reject a group request", async (assert) => {
+    const group = await GroupFactory.merge({ master: user.id }).create();
+
+    const { body } = await supertest(baseUrl)
+      .post(`/groups/${group.id}/requests`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({});
+
+    await supertest(baseUrl)
+      .delete(`/groups/${group.id}/requests/${body.groupRequest.id}/`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .expect(200);
+
+    const groupRequest = await GroupRequest.find(body.groupRequest.id);
+    assert.isNull(groupRequest);
+  });
+
+  test("it should return 404 when providing an unexisting group for rejection", async (assert) => {
+    const master = await UserFactory.create();
+    const group = await GroupFactory.merge({ master: master.id }).create();
+
+    const { body } = await supertest(baseUrl)
+      .post(`/groups/${group.id}/requests`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({});
+
+    const response = await supertest(baseUrl)
+      .delete(`/groups/123/requests/${body.groupRequest.id}/`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .expect(404);
+
+    assert.equal(response.body.code, "BAD_REQUEST");
+    assert.equal(response.body.status, 404);
+  });
+
+  test("it should return 404 when providing an unexisting group request for rejection", async (assert) => {
+    const master = await UserFactory.create();
+    const group = await GroupFactory.merge({ master: master.id }).create();
+
+    await supertest(baseUrl)
+      .post(`/groups/${group.id}/requests`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({});
+
+    const response = await supertest(baseUrl)
+      .delete(`/groups/${group.id}/requests/123/`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .expect(404);
+
+    assert.equal(response.body.code, "BAD_REQUEST");
+    assert.equal(response.body.status, 404);
   });
 
   group.before(async () => {
