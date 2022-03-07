@@ -1,6 +1,6 @@
 import Database from "@ioc:Adonis/Lucid/Database";
 import User from "App/Models/User";
-import { UserFactory } from "Database/factories";
+import { GroupFactory, UserFactory } from "Database/factories";
 import test from "japa";
 import supertest from "supertest";
 
@@ -57,6 +57,46 @@ test.group("Group", (group) => {
 
     assert.equal(code, "BAD_REQUEST");
     assert.equal(status, 422);
+  });
+
+  test("it should update a group", async (assert) => {
+    const master = await UserFactory.create();
+    const groupFactory = await GroupFactory.merge({ master: master.id }).create();
+
+    const payload = {
+      name: "test",
+      description: "test",
+      schedule: "test",
+      location: "test",
+      chronic: "test",
+    };
+
+    const {
+      body: { group },
+    } = await supertest(baseUrl).patch(`/groups/${groupFactory.id}`).send(payload).expect(200);
+
+    assert.exists(group, "group undefined");
+    assert.equal(group.id, group.id);
+    assert.equal(group.name, payload.name);
+    assert.equal(group.description, payload.description);
+    assert.equal(group.schedule, payload.location);
+    assert.equal(group.chronic, payload.chronic);
+    assert.equal(group.master, master.id);
+  });
+
+  test.only("it should return 404 when providing an unexisting group id", async (assert) => {
+    const payload = {
+      name: "test",
+      description: "test",
+      schedule: "test",
+      location: "test",
+      chronic: "test",
+    };
+
+    const { body } = await supertest(baseUrl).patch(`/groups/123`).send(payload).expect(404);
+
+    assert.equal(body.code, "BAD_REQUEST");
+    assert.equal(body.status, 404);
   });
 
   group.before(async () => {
