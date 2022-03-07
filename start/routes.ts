@@ -34,6 +34,7 @@ Route.post("/sessions", "SessionsController.store");
 Route.delete("/sessions", "SessionsController.destroy");
 
 Route.post("/groups", "GroupsController.store").middleware("auth");
+Route.patch("/groups/:id", "GroupsController.patch"); //.middleware("auth");
 
 Route.get("/groups/:groupId/requests", "GroupRequestsController.index").middleware("auth");
 Route.post("/groups/:groupId/requests", "GroupRequestsController.store").middleware("auth");
