@@ -1,4 +1,5 @@
 import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
+import BadRequest from "App/Exceptions/BadRequestException";
 import Group from "App/Models/Group";
 import CreateGroup from "App/Validators/CreateGroupValidator";
 
@@ -20,5 +21,18 @@ export default class GroupsController {
     const updatedGroup = await group.merge(payload).save();
 
     return response.ok({ group: updatedGroup });
+  }
+
+  public async removePlayer({ request, response }: HttpContextContract) {
+    const groupId = request.param("groupId") as number;
+    const playerId = +request.param("playerId");
+
+    const group = await Group.findOrFail(groupId);
+
+    if (playerId === group.master) throw new BadRequest("cannot remove master from group", 400);
+
+    await group.related("players").detach([playerId]);
+
+    return response.ok({});
   }
 }
