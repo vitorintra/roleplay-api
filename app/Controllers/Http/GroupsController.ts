@@ -7,7 +7,11 @@ export default class GroupsController {
   public async index({ request, response }: HttpContextContract) {
     const { ["user"]: userId, text } = request.qs();
 
-    const groups = await this.filterByQueryString(userId, text);
+    const page = request.input("page", 1);
+    const limit = request.input("limit", 24);
+
+    const groupsQuery = this.filterByQueryString(userId, text);
+    const groups = await groupsQuery.paginate(page, limit);
 
     return response.ok({ groups });
   }
@@ -72,28 +76,22 @@ export default class GroupsController {
     return Group.query()
       .preload("players")
       .preload("masterUser")
-      .whereHas("players", (query) => {
-        query.where("id", userId);
-      });
+      .withScopes((scope) => scope.withPlayer(userId));
   }
 
   private filterByText(text: string) {
     return Group.query()
       .preload("players")
       .preload("masterUser")
-
       .where("name", "LIKE", `%${text}%`)
-      .orWhere("description", "LIKE", `%${text}%`);
+      .withScopes((scope) => scope.withText(text));
   }
 
   private filterByUserAndText(userId: number, text: string) {
     return Group.query()
       .preload("players")
       .preload("masterUser")
-      .whereHas("players", (query) => {
-        query.where("id", userId);
-      })
-      .where("name", "LIKE", `%${text}%`)
-      .orWhere("description", "LIKE", `%${text}%`);
+      .withScopes((scope) => scope.withPlayer(userId))
+      .withScopes((scope) => scope.withText(text));
   }
 }

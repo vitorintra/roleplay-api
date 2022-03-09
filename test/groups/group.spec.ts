@@ -239,25 +239,25 @@ test.group("Group", (group) => {
       .expect(200);
 
     // Groups
-    assert.exists(groups, "Groups undefined");
-    assert.equal(groups.length, 1);
+    assert.exists(groups.data, "Groups undefined");
+    assert.equal(groups.data.length, 1);
 
     // First group
-    assert.equal(groups[0].id, group.id);
-    assert.equal(groups[0].name, name);
-    assert.equal(groups[0].description, description);
-    assert.equal(groups[0].schedule, schedule);
-    assert.equal(groups[0].location, location);
-    assert.equal(groups[0].chronic, chronic);
-    assert.equal(groups[0].master, master);
+    assert.equal(groups.data[0].id, group.id);
+    assert.equal(groups.data[0].name, name);
+    assert.equal(groups.data[0].description, description);
+    assert.equal(groups.data[0].schedule, schedule);
+    assert.equal(groups.data[0].location, location);
+    assert.equal(groups.data[0].chronic, chronic);
+    assert.equal(groups.data[0].master, master);
 
     // First group master
-    assert.exists(groups[0].masterUser, "Master undefined");
-    assert.equal(groups[0].masterUser.id, user.id);
-    assert.equal(groups[0].masterUser.username, user.username);
+    assert.exists(groups.data[0].masterUser, "Master undefined");
+    assert.equal(groups.data[0].masterUser.id, user.id);
+    assert.equal(groups.data[0].masterUser.username, user.username);
 
     // Players
-    assert.isNotEmpty(groups[0].players, "Empty players");
+    assert.isNotEmpty(groups.data[0].players, "Empty players");
 
     // First player
     assert.equal(players[0].id, user.id);
@@ -287,8 +287,8 @@ test.group("Group", (group) => {
       .set("Authorization", `Bearer ${authToken}`)
       .expect(200);
 
-    assert.exists(groups, "Groups undefined");
-    assert.equal(groups.length, 0);
+    assert.exists(groups.data, "Groups undefined");
+    assert.equal(groups.data.length, 0);
   });
 
   test("it should return all groups by user id", async (assert) => {
@@ -319,25 +319,25 @@ test.group("Group", (group) => {
       .expect(200);
 
     // Groups
-    assert.exists(groups, "Groups undefined");
-    assert.equal(groups.length, 1);
+    assert.exists(groups.data, "Groups undefined");
+    assert.equal(groups.data.length, 1);
 
     // First group
-    assert.equal(groups[0].id, group.id);
-    assert.equal(groups[0].name, name);
-    assert.equal(groups[0].description, description);
-    assert.equal(groups[0].schedule, schedule);
-    assert.equal(groups[0].location, location);
-    assert.equal(groups[0].chronic, chronic);
-    assert.equal(groups[0].master, master);
+    assert.equal(groups.data[0].id, group.id);
+    assert.equal(groups.data[0].name, name);
+    assert.equal(groups.data[0].description, description);
+    assert.equal(groups.data[0].schedule, schedule);
+    assert.equal(groups.data[0].location, location);
+    assert.equal(groups.data[0].chronic, chronic);
+    assert.equal(groups.data[0].master, master);
 
     // First group master
-    assert.exists(groups[0].masterUser, "Master undefined");
-    assert.equal(groups[0].masterUser.id, user.id);
-    assert.equal(groups[0].masterUser.username, user.username);
+    assert.exists(groups.data[0].masterUser, "Master undefined");
+    assert.equal(groups.data[0].masterUser.id, user.id);
+    assert.equal(groups.data[0].masterUser.username, user.username);
 
     // Players
-    assert.isNotEmpty(groups[0].players, "Empty players");
+    assert.isNotEmpty(groups.data[0].players, "Empty players");
 
     // First player
     assert.equal(players[0].id, user.id);
@@ -378,25 +378,25 @@ test.group("Group", (group) => {
       .expect(200);
 
     // Groups
-    assert.exists(groups, "Groups undefined");
-    assert.equal(groups.length, 1);
+    assert.exists(groups.data, "Groups undefined");
+    assert.equal(groups.data.length, 1);
 
     // First group
-    assert.equal(groups[0].id, group.id);
-    assert.equal(groups[0].name, name);
-    assert.equal(groups[0].description, description);
-    assert.equal(groups[0].schedule, schedule);
-    assert.equal(groups[0].location, location);
-    assert.equal(groups[0].chronic, chronic);
-    assert.equal(groups[0].master, master);
+    assert.equal(groups.data[0].id, group.id);
+    assert.equal(groups.data[0].name, name);
+    assert.equal(groups.data[0].description, description);
+    assert.equal(groups.data[0].schedule, schedule);
+    assert.equal(groups.data[0].location, location);
+    assert.equal(groups.data[0].chronic, chronic);
+    assert.equal(groups.data[0].master, master);
 
     // First group master
-    assert.exists(groups[0].masterUser, "Master undefined");
-    assert.equal(groups[0].masterUser.id, user.id);
-    assert.equal(groups[0].masterUser.username, user.username);
+    assert.exists(groups.data[0].masterUser, "Master undefined");
+    assert.equal(groups.data[0].masterUser.id, user.id);
+    assert.equal(groups.data[0].masterUser.username, user.username);
 
     // Players
-    assert.isNotEmpty(groups[0].players, "Empty players");
+    assert.isNotEmpty(groups.data[0].players, "Empty players");
 
     // First player
     assert.equal(players[0].id, user.id);
@@ -437,25 +437,25 @@ test.group("Group", (group) => {
       .expect(200);
 
     // Groups
-    assert.exists(groups, "Groups undefined");
-    assert.equal(groups.length, 1);
+    assert.exists(groups.data, "Groups undefined");
+    assert.equal(groups.data.length, 1);
 
     // First group
-    assert.equal(groups[0].id, group.id);
-    assert.equal(groups[0].name, name);
-    assert.equal(groups[0].description, description);
-    assert.equal(groups[0].schedule, schedule);
-    assert.equal(groups[0].location, location);
-    assert.equal(groups[0].chronic, chronic);
-    assert.equal(groups[0].master, master);
+    assert.equal(groups.data[0].id, group.id);
+    assert.equal(groups.data[0].name, name);
+    assert.equal(groups.data[0].description, description);
+    assert.equal(groups.data[0].schedule, schedule);
+    assert.equal(groups.data[0].location, location);
+    assert.equal(groups.data[0].chronic, chronic);
+    assert.equal(groups.data[0].master, master);
 
     // First group master
-    assert.exists(groups[0].masterUser, "Master undefined");
-    assert.equal(groups[0].masterUser.id, user.id);
-    assert.equal(groups[0].masterUser.username, user.username);
+    assert.exists(groups.data[0].masterUser, "Master undefined");
+    assert.equal(groups.data[0].masterUser.id, user.id);
+    assert.equal(groups.data[0].masterUser.username, user.username);
 
     // Players
-    assert.isNotEmpty(groups[0].players, "Empty players");
+    assert.isNotEmpty(groups.data[0].players, "Empty players");
 
     // First player
     assert.equal(players[0].id, user.id);
@@ -496,25 +496,25 @@ test.group("Group", (group) => {
       .expect(200);
 
     // Groups
-    assert.exists(groups, "Groups undefined");
-    assert.equal(groups.length, 1);
+    assert.exists(groups.data, "Groups undefined");
+    assert.equal(groups.data.length, 1);
 
     // First group
-    assert.equal(groups[0].id, group.id);
-    assert.equal(groups[0].name, name);
-    assert.equal(groups[0].description, description);
-    assert.equal(groups[0].schedule, schedule);
-    assert.equal(groups[0].location, location);
-    assert.equal(groups[0].chronic, chronic);
-    assert.equal(groups[0].master, master);
+    assert.equal(groups.data[0].id, group.id);
+    assert.equal(groups.data[0].name, name);
+    assert.equal(groups.data[0].description, description);
+    assert.equal(groups.data[0].schedule, schedule);
+    assert.equal(groups.data[0].location, location);
+    assert.equal(groups.data[0].chronic, chronic);
+    assert.equal(groups.data[0].master, master);
 
     // First group master
-    assert.exists(groups[0].masterUser, "Master undefined");
-    assert.equal(groups[0].masterUser.id, user.id);
-    assert.equal(groups[0].masterUser.username, user.username);
+    assert.exists(groups.data[0].masterUser, "Master undefined");
+    assert.equal(groups.data[0].masterUser.id, user.id);
+    assert.equal(groups.data[0].masterUser.username, user.username);
 
     // Players
-    assert.isNotEmpty(groups[0].players, "Empty players");
+    assert.isNotEmpty(groups.data[0].players, "Empty players");
 
     // First player
     assert.equal(players[0].id, user.id);
@@ -555,25 +555,25 @@ test.group("Group", (group) => {
       .expect(200);
 
     // Groups
-    assert.exists(groups, "Groups undefined");
-    assert.equal(groups.length, 1);
+    assert.exists(groups.data, "Groups undefined");
+    assert.equal(groups.data.length, 1);
 
     // First group
-    assert.equal(groups[0].id, group.id);
-    assert.equal(groups[0].name, name);
-    assert.equal(groups[0].description, description);
-    assert.equal(groups[0].schedule, schedule);
-    assert.equal(groups[0].location, location);
-    assert.equal(groups[0].chronic, chronic);
-    assert.equal(groups[0].master, master);
+    assert.equal(groups.data[0].id, group.id);
+    assert.equal(groups.data[0].name, name);
+    assert.equal(groups.data[0].description, description);
+    assert.equal(groups.data[0].schedule, schedule);
+    assert.equal(groups.data[0].location, location);
+    assert.equal(groups.data[0].chronic, chronic);
+    assert.equal(groups.data[0].master, master);
 
     // First group master
-    assert.exists(groups[0].masterUser, "Master undefined");
-    assert.equal(groups[0].masterUser.id, user.id);
-    assert.equal(groups[0].masterUser.username, user.username);
+    assert.exists(groups.data[0].masterUser, "Master undefined");
+    assert.equal(groups.data[0].masterUser.id, user.id);
+    assert.equal(groups.data[0].masterUser.username, user.username);
 
     // Players
-    assert.isNotEmpty(groups[0].players, "Empty players");
+    assert.isNotEmpty(groups.data[0].players, "Empty players");
 
     // First player
     assert.equal(players[0].id, user.id);
