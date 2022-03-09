@@ -61,8 +61,7 @@ test.group("Group", (group) => {
   });
 
   test("it should update a group", async (assert) => {
-    const master = await UserFactory.create();
-    const groupFactory = await GroupFactory.merge({ master: master.id }).create();
+    const groupFactory = await GroupFactory.merge({ master: user.id }).create();
 
     const payload = {
       name: "test",
@@ -74,7 +73,11 @@ test.group("Group", (group) => {
 
     const {
       body: { group },
-    } = await supertest(baseUrl).patch(`/groups/${groupFactory.id}`).send(payload).expect(200);
+    } = await supertest(baseUrl)
+      .patch(`/groups/${groupFactory.id}`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send(payload)
+      .expect(200);
 
     assert.exists(group, "group undefined");
     assert.equal(group.id, group.id);
@@ -82,7 +85,7 @@ test.group("Group", (group) => {
     assert.equal(group.description, payload.description);
     assert.equal(group.schedule, payload.location);
     assert.equal(group.chronic, payload.chronic);
-    assert.equal(group.master, master.id);
+    assert.equal(group.master, user.id);
   });
 
   test("it should return 404 when providing an unexisting group id", async (assert) => {
@@ -94,7 +97,11 @@ test.group("Group", (group) => {
       chronic: "test",
     };
 
-    const { body } = await supertest(baseUrl).patch(`/groups/123`).send(payload).expect(404);
+    const { body } = await supertest(baseUrl)
+      .patch(`/groups/123`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send(payload)
+      .expect(404);
 
     assert.equal(body.code, "BAD_REQUEST");
     assert.equal(body.status, 404);
@@ -134,7 +141,7 @@ test.group("Group", (group) => {
     assert.isEmpty(group.players);
   });
 
-  test.only("it should remove the master of the group", async (assert) => {
+  test("it should remove the master of the group", async (assert) => {
     const payload = {
       name: "test",
       description: "test",
@@ -160,6 +167,48 @@ test.group("Group", (group) => {
 
     await groupModel.load("players");
     assert.isNotEmpty(groupModel.players);
+  });
+
+  test("it should remove a group", async (assert) => {
+    const payload = {
+      name: "test",
+      description: "test",
+      schedule: "test",
+      location: "test",
+      chronic: "test",
+      master: user.id,
+    };
+
+    const {
+      body: { group },
+    } = await supertest(baseUrl)
+      .post("/groups")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send(payload);
+
+    await supertest(baseUrl)
+      .delete(`/groups/${group.id}`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .expect(200);
+
+    const emptyGroup = await Database.query().from("groups").where("id", group.id);
+    assert.isEmpty(emptyGroup);
+
+    const players = await Database.query().from("groups_users");
+    assert.isEmpty(players);
+  });
+
+  test("it should return 404 when providing an unexisting group for deletion", async (assert) => {
+    const {
+      body: { code, status },
+    } = await supertest(baseUrl)
+      .delete("/groups/1")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({})
+      .expect(404);
+
+    assert.equal(code, "BAD_REQUEST");
+    assert.equal(status, 404);
   });
 
   group.before(async () => {
